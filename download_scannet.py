@@ -4,8 +4,8 @@
 # -*- coding: utf-8 -*-
 import argparse
 import os
-#import urllib.request (for python3)
-import urllib
+import urllib.request #(for python3)
+# import urllib
 import tempfile
 
 BASE_URL = 'http://kaldir.vc.in.tum.de/scannet/'
@@ -28,8 +28,8 @@ V1_IDX = 1
 
 
 def get_release_scans(release_file):
-    #scan_lines = urllib.request.urlopen(release_file)
-    scan_lines = urllib.urlopen(release_file)
+    scan_lines = urllib.request.urlopen(release_file)
+    # scan_lines = urllib.urlopen(release_file)
     scans = []
     for scan_line in scan_lines:
         scan_id = scan_line.decode('utf8').rstrip('\n')
@@ -56,8 +56,8 @@ def download_file(url, out_file):
         fh, out_file_tmp = tempfile.mkstemp(dir=out_dir)
         f = os.fdopen(fh, 'w')
         f.close()
-        #urllib.request.urlretrieve(url, out_file_tmp)
-        urllib.urlretrieve(url, out_file_tmp)
+        urllib.request.urlretrieve(url, out_file_tmp)
+        # urllib.urlretrieve(url, out_file_tmp)
         os.rename(out_file_tmp, out_file)
     else:
         print('WARNING: skipping download of existing file ' + out_file)
