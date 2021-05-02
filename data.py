@@ -184,7 +184,7 @@ def trainMerge(tbl):
     feats=torch.cat(feats,0)
     labels=torch.cat(labels,0)
     ins_labels=torch.cat(ins_labels,0)
-    batch_data = {'x': torch.stack([locs,feats],dim=0),  # [locs,feats]
+    batch_data = {'x': [locs,feats],  # [locs,feats]
                   'y': labels.long(),
                   'id': tbl,
                   'y_ins': ins_labels.long(),
