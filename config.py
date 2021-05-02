@@ -4,7 +4,7 @@ block_reps = 2
 
 scale = 50
 val_reps = 1
-batch_size = 4     # 8 in the original paper
+batch_size = 8     # 8 in the original paper
 elastic_deformation=False
 
 MAX_DES_LEN=80
