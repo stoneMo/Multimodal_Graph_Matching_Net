@@ -252,7 +252,7 @@ def trainMerge(tbl):
     ins_labels=torch.cat(ins_labels,0)
     coords = torch.cat(coords,0)
     #point_ids = torch.cat(point_ids, 0)
-    batch_data = {'x': torch.stack([locs,feats],dim=0),  # [locs,feats]
+    batch_data = {'x': [locs,feats],  # [locs,feats]
                   'y': labels.long(),
                   'id': tbl,
                   'y_ins': ins_labels.long(),
