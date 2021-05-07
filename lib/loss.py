@@ -91,15 +91,16 @@ class RankingLoss(nn.Module):
 
 
 class SimCLRLoss(nn.Module):
-    def __init__(self, reduction='mean'):
+    def __init__(self, tau=7, reduction='mean'):
         super(SimCLRLoss, self).__init__()
         self.m = 0.2
         self.gamma = 64
+        self.tau = tau
         self.reduction = reduction
         self.soft_plus = nn.Softplus()
 
     def forward(self, sim, label):
-        sim = torch.exp(7 * sim)
+        sim = torch.exp(self.tau * sim)
         loss = - torch.log((sim * label).sum() / (sim.sum() - (sim * label).sum() + 1e-8))
 
         return loss

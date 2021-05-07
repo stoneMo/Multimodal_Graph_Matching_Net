@@ -143,7 +143,8 @@ def get_loss(data_dict, config, args):
     cluster_label = []
     box_mask = torch.zeros(batch_size).cuda()
 
-    criterion = ContrastiveLoss(margin=0.2, gamma=5)
+    # criterion = ContrastiveLoss(margin=0.2, gamma=5)
+    criterion = SimCLRLoss(tau=2)
     ref_loss = torch.zeros(1).cuda().requires_grad_(True)
 
     start_idx = 0
