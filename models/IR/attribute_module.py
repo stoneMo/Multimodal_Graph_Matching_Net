@@ -1,7 +1,7 @@
 import numpy as np
 
-from models import util
-from models.basic_blocks import *
+from models.IR import util
+from models.IR.basic_blocks import *
 from torchsparse import SparseTensor
 from torchsparse.utils import sparse_quantize, sparse_collate, sparse_collate_tensors
 

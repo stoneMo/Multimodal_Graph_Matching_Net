@@ -2,7 +2,7 @@ import torch
 import torch.nn as nn
 import numpy as np
 
-from models.basic_blocks import DynamicEdgeConv
+from models.IR.basic_blocks import DynamicEdgeConv
 
 class RelationModule(nn.Module):
     def __init__(self, input_feature_dim, args):

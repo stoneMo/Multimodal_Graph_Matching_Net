@@ -8,7 +8,7 @@ import torch.nn as nn
 importlib.reload(models)
 
 sys.path.append(os.path.join(os.getcwd(), "lib"))  # HACK add the lib folder
-sys.path.append(os.path.join(os.getcwd(), "models"))  # HACK add the lib folder
+sys.path.append(os.path.join(os.getcwd(), "models/IR"))  # HACK add the lib folder
 
 
 class InstanceRefer(nn.Module):

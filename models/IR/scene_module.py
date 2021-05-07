@@ -1,4 +1,4 @@
-from models.basic_blocks import *
+from models.IR.basic_blocks import *
 
 class SceneModule(nn.Module):
     def __init__(self, input_feature_dim, args):

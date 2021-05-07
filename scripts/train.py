@@ -15,7 +15,7 @@ from data.scannet.model_util_scannet import ScannetDatasetConfig
 from lib.dataset import ScannetReferenceDataset
 from lib.solver import Solver
 from lib.config import CONF
-from models.instancerefer import InstanceRefer
+from models.IR.instancerefer import InstanceRefer
 
 SCANREFER_TRAIN = json.load(open(os.path.join(CONF.PATH.DATA, "ScanRefer_filtered_train.json")))
 SCANREFER_VAL = json.load(open(os.path.join(CONF.PATH.DATA, "ScanRefer_filtered_val.json")))
@@ -29,16 +29,16 @@ def init():
     os.makedirs(backup_dir, exist_ok=True)
     os.system('cp {}/scripts/train.py {}'.format(CONF.PATH.BASE, backup_dir))
     os.system('cp {} {}'.format(CONF.config, backup_dir))
-    os.system('cp {} {}'.format(CONF.PATH.BASE+'/models/util.py', backup_dir))
-    os.system('cp {}/models/{}.py {}'.format(CONF.PATH.BASE, CONF.model, backup_dir))
-    os.system('cp {}/models/{}.py {}'.format(CONF.PATH.BASE, CONF.language_module, backup_dir))
+    os.system('cp {} {}'.format(CONF.PATH.BASE+'/models/IR/util.py', backup_dir))
+    os.system('cp {}/models/IR/{}.py {}'.format(CONF.PATH.BASE, CONF.model, backup_dir))
+    os.system('cp {}/models/IR/{}.py {}'.format(CONF.PATH.BASE, CONF.language_module, backup_dir))
 
     if CONF.attribute_module:
-        os.system('cp {}/models/{}.py {}'.format(CONF.PATH.BASE, CONF.attribute_module, backup_dir))
+        os.system('cp {}/models/IR/{}.py {}'.format(CONF.PATH.BASE, CONF.attribute_module, backup_dir))
     if CONF.relation_module:
-        os.system('cp {}/models/{}.py {}'.format(CONF.PATH.BASE, CONF.relation_module, backup_dir))
+        os.system('cp {}/models/IR/{}.py {}'.format(CONF.PATH.BASE, CONF.relation_module, backup_dir))
     if CONF.scene_module:
-        os.system('cp {}/models/{}.py {}'.format(CONF.PATH.BASE, CONF.scene_module, backup_dir))
+        os.system('cp {}/models/IR/{}.py {}'.format(CONF.PATH.BASE, CONF.scene_module, backup_dir))
 
     # random seed
     random.seed(CONF.manual_seed)

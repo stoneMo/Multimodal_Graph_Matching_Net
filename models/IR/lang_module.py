@@ -1,5 +1,5 @@
 from torch.nn.utils.rnn import pack_padded_sequence, pad_packed_sequence
-from models.basic_blocks import *
+from models.IR.basic_blocks import *
 
 class LangModule(nn.Module):
     def __init__(self, args):
