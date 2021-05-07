@@ -2,7 +2,7 @@
 
 This repo heavily relies on [InstanceRefer](https://github.com/CurryYuan/InstanceRefer). Here is their README.
 
-# InstanceRefer
+## InstanceRefer
 ### InstanceRefer: Cooperative Holistic Understanding for Visual Grounding on Point Clouds through Instance Multi-level Contextual Referring
 
 This repository is for the 1st method on ScanRefer benchmark [[arxiv paper]](https://arxiv.org/pdf/2103.01128.pdf).
