@@ -169,6 +169,8 @@ def export_one_scan(scan_name, output_filename_prefix):
 
     meta_file = os.path.join(SCANNET_DIR, scan_name,
                              scan_name + '.txt')  # includes axisAlignment info for the train set scans.
+    
+    print("mesh_file:", mesh_file)
 
     mesh_vertices, aligned_vertices, semantic_labels, instance_labels, \
     instance_bboxes, aligned_instance_bboxes, semantic_labels_pg, instance_labels_pg = \
