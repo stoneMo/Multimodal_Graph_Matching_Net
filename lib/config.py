@@ -32,7 +32,7 @@ CONF = get_parser()
 
 # path
 CONF.PATH = EasyDict()
-CONF.PATH.BASE = "/home/jianchunchen/jcchen/Projects/Refer/InstanceRefer/"  # TODO: change this
+CONF.PATH.BASE = os.getcwd()  # TODO: change this
 CONF.PATH.DATA = os.path.join(CONF.PATH.BASE, "data")
 CONF.PATH.SCANNET = os.path.join(CONF.PATH.DATA, "scannet")
 CONF.PATH.LIB = os.path.join(CONF.PATH.BASE, "lib")
