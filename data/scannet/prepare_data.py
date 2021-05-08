@@ -20,7 +20,7 @@ from load_scannet_data import read_aggregation, read_segmentation
 def parse_args():
     parser = argparse.ArgumentParser('Data Preparision')
     parser.add_argument('--split', type=str, default='train', choices=['train', 'val', 'test'])
-    parser.add_argument('--scannet_path', type=str, default='data/scannet/scans/')
+    parser.add_argument('--scannet_path', type=str, default='scans/')
     parser.add_argument('--pointgroupinst_path', type=str, default='PointGroupInst/')
     parser.add_argument('--output_path', type=str, default='pointgroup_data')
 
