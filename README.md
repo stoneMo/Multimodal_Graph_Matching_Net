@@ -2,6 +2,8 @@
 
 This repo heavily relies on [InstanceRefer](https://github.com/CurryYuan/InstanceRefer). Here is their README.
 
+We re-organized the code and also re-implemented/integrate [TGNN](https://github.com/hanhung/TGNN) in our repo. You could deploy different model by specifying `model_name`.
+
 ## InstanceRefer
 ### InstanceRefer: Cooperative Holistic Understanding for Visual Grounding on Point Clouds through Instance Multi-level Contextual Referring
 
