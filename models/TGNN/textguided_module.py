@@ -122,6 +122,10 @@ class TextGuidedModule(nn.Module):
         feats, pts, batch_index, filtered_index, pred_obbs = \
             self.filter_candidates(data_dict, lang_cls_pred)
 
+        if len(pred_obbs) == 0:
+            data_dict['relation_scores'] = torch.zeros(0).cuda()
+            return data_dict
+            
         # prepare data feeding
         feats = torch.Tensor(feats).cuda()
         batch_index = torch.LongTensor(batch_index).cuda()

@@ -38,6 +38,7 @@ class AttributeModule(nn.Module):
                                          nn.ReLU(),
                                          nn.Linear(h_dim, h_dim),
                                          )
+        self.h_dim = h_dim
 
     def instance_augmentor(self, pc, dropout=True, scaling=False, jitter=False, shuffle=False, rotation=True):
 
@@ -126,13 +127,17 @@ class AttributeModule(nn.Module):
         else:
             pts_batch = data_dict['pts_batch']
             pred_obb_batch = data_dict['pred_obb_batch']
+        
+        # fix a bug for small batch_size, might have no instance obb
+        if len(pts_batch) > 0:
+            feats = sparse_collate_tensors(pts_batch).cuda()
 
-        feats = sparse_collate_tensors(pts_batch).cuda()
-
-        # feature extractor
-        feats = self.net(feats)
-        feats = self.pooling(feats)  # (num_filtered_obj, dim)
-        feats = self.vis_emb_fc(feats)
+            # feature extractor
+            feats = self.net(feats)
+            feats = self.pooling(feats)  # (num_filtered_obj, dim)
+            feats = self.vis_emb_fc(feats)
+        else:
+            feats = torch.zeros(0, self.h_dim).to(lang_feats.device)
 
         lang_feats_flatten = []
         for i in range(batch_size):
@@ -144,8 +149,10 @@ class AttributeModule(nn.Module):
             lang_feat = lang_feats[i]  # (1, h_dim)
             lang_feat = lang_feat.repeat(num_filtered_obj, 1)
             lang_feats_flatten.append(lang_feat)
-
-        lang_feats_flatten = torch.cat(lang_feats_flatten, dim=0)
+        if len(lang_feats_flatten) > 0:
+            lang_feats_flatten = torch.cat(lang_feats_flatten, dim=0)
+        else:
+            lang_feats_flatten = torch.zeros(0,self.h_dim).to(feats.device)
         # feats = nn.functional.normalize(feats, p=2, dim=1)
         scores = torch.sum(feats * lang_feats_flatten, dim=1)
 
