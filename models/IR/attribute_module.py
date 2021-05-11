@@ -130,7 +130,8 @@ class AttributeModule(nn.Module):
         
         # fix a bug for small batch_size, might have no instance obb
         if len(pts_batch) > 0:
-            feats = sparse_collate_tensors(pts_batch).to(lang_feats.device)
+            pts_batch = pts_batch.to(lang_feats.device)
+            feats = sparse_collate_tensors(pts_batch)
 
             # feature extractor
             feats = self.net(feats)
