@@ -55,7 +55,7 @@ MODEL:
   use_pretrained: False
 
 TRAIN:
-  batch_size: 128
+  batch_size: 64
   num_workers: 8
   epoch: 32
 
