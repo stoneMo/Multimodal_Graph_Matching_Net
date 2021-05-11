@@ -130,7 +130,7 @@ class AttributeModule(nn.Module):
         
         # fix a bug for small batch_size, might have no instance obb
         if len(pts_batch) > 0:
-            feats = sparse_collate_tensors(pts_batch).cuda()
+            feats = sparse_collate_tensors(pts_batch).to(lang_feats.device)
 
             # feature extractor
             feats = self.net(feats)
@@ -139,7 +139,7 @@ class AttributeModule(nn.Module):
         else:
             feats = torch.zeros(0, self.h_dim).to(lang_feats.device)
 
-        print("feats:", feats.shape)
+        print("feats:", feats.shape, )
         batch_size = lang_feats.shape[0]
         lang_feats_flatten = []
         for i in range(batch_size):
