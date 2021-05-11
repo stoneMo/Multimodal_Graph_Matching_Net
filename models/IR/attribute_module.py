@@ -111,7 +111,7 @@ class AttributeModule(nn.Module):
         return pts_batch, pred_obb_batch
 
     def forward(self, data_dict):
-        # batch_size = len(data_dict['instance_points'])
+        batch_size = len(data_dict['instance_points'])
 
         # lang encoding
         lang_feats = data_dict['lang_attr_feats']  # (B, l_dim)
@@ -130,8 +130,7 @@ class AttributeModule(nn.Module):
         
         # fix a bug for small batch_size, might have no instance obb
         if len(pts_batch) > 0:
-            pts_batch = pts_batch.to(lang_feats.device)
-            feats = sparse_collate_tensors(pts_batch)
+            feats = sparse_collate_tensors(pts_batch).cuda()
 
             # feature extractor
             feats = self.net(feats)
@@ -140,8 +139,6 @@ class AttributeModule(nn.Module):
         else:
             feats = torch.zeros(0, self.h_dim).to(lang_feats.device)
 
-        print("feats:", feats.shape, )
-        batch_size = lang_feats.shape[0]
         lang_feats_flatten = []
         for i in range(batch_size):
             num_filtered_obj = len(pred_obb_batch[i])
