@@ -120,12 +120,13 @@ def get_model(args):
             raise NotImplementedError("Haven't implemented MGMN")
 
     # to CUDA
+    model = nn.DataParallel(model)
     model = model.cuda()
     return model
 
 
 def get_num_params(model):
-    model_parameters = filter(lambda p: p.requires_grad, model.parameters())
+    model_parameters = filter(lambda p: p.requires_grad, model.module.parameters())
     num_params = int(sum([np.prod(p.size()) for p in model_parameters]))
 
     return num_params
@@ -133,13 +134,13 @@ def get_num_params(model):
 
 def get_solver(args, dataloader):
     model = get_model(args)
-    optimizer = optim.Adam(model.parameters(), lr=args.lr, weight_decay=args.wd)
+    optimizer = optim.Adam(model.module.parameters(), lr=args.lr, weight_decay=args.wd)
 
     if args.use_checkpoint:
         print("loading checkpoint {}...".format(args.use_checkpoint))
         stamp = args.use_checkpoint
         checkpoint = torch.load(args.use_checkpoint)
-        model.load_state_dict(checkpoint["model_state_dict"])
+        model.module.load_state_dict(checkpoint["model_state_dict"])
         optimizer.load_state_dict(checkpoint["optimizer_state_dict"])
     else:
         stamp = CONF.PATH.OUTPUT
