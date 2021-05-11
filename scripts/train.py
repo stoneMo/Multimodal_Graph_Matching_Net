@@ -6,6 +6,7 @@ import random
 
 import numpy as np
 import torch.optim as optim
+import torch.nn as nn
 
 sys.path.append("../utils")  # HACK add the lib folder
 sys.path.append(os.path.join(os.getcwd()))  # HACK add the root folder
