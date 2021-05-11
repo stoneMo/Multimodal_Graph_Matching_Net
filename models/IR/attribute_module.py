@@ -139,6 +139,7 @@ class AttributeModule(nn.Module):
         else:
             feats = torch.zeros(0, self.h_dim).to(lang_feats.device)
 
+        print("feats:", feats.shape)
         batch_size = lang_feats.shape[0]
         lang_feats_flatten = []
         for i in range(batch_size):
