@@ -20,7 +20,7 @@ from load_scannet_data import read_aggregation, read_segmentation
 def parse_args():
     parser = argparse.ArgumentParser('Data Preparision')
     parser.add_argument('--split', type=str, default='train', choices=['train', 'val', 'test'])
-    parser.add_argument('--scannet_path', type=str, default='data/scannet/scans/')
+    parser.add_argument('--scannet_path', type=str, default='scans/')
     parser.add_argument('--pointgroupinst_path', type=str, default='PointGroupInst/')
     parser.add_argument('--output_path', type=str, default='pointgroup_data')
 
@@ -36,12 +36,11 @@ def export(mesh_file, agg_file, seg_file, meta_file, label_map_file, output_file
     scene = meta_file.split('/')[-1].split('.')[0]
 
     if split == 'train':
-        try:
-            temp_dir = pointgroup_file + '/train/'
-            inst_list = pd.read_table(temp_dir + scene + '.txt', header=None)
-        except:
-            temp_dir = pointgroup_file + '/val/'
-            inst_list = pd.read_table(temp_dir + scene + '.txt', header=None)
+        temp_dir = pointgroup_file + '/train/'
+        inst_list = pd.read_table(temp_dir + scene + '.txt', header=None)
+    elif split == 'val':
+        temp_dir = pointgroup_file + '/val/'
+        inst_list = pd.read_table(temp_dir + scene + '.txt', header=None)
     else:
         temp_dir = pointgroup_file + '/test/'
         inst_list = pd.read_table(temp_dir + scene + '.txt', header=None)
@@ -170,7 +169,7 @@ def export_one_scan(scan_name, output_filename_prefix):
 
     meta_file = os.path.join(SCANNET_DIR, scan_name,
                              scan_name + '.txt')  # includes axisAlignment info for the train set scans.
-
+    
     mesh_vertices, aligned_vertices, semantic_labels, instance_labels, \
     instance_bboxes, aligned_instance_bboxes, semantic_labels_pg, instance_labels_pg = \
         export(mesh_file, agg_file, seg_file, meta_file, LABEL_MAP_FILE, None, POINTGROUP_DIR)
