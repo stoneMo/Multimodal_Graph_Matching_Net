@@ -105,10 +105,10 @@ class ScannetReferenceDataset(Dataset):
         leaf_node_attr_index = np.array(self.leaf_node_attr_index_all[idx])[:, :max_num_attr]  # [E, 300]
         leaf_node_attr_index = np.where(leaf_node_attr_index == 300, max_num_attr, leaf_node_attr_index)
         
-        print("center_node_attr_index:", center_node_attr_index.shape)
-        print("edges_index:", edges_index.shape)
-        print("leaf_node_index:", leaf_node_index.shape)
-        print("leaf_node_attr_index:", leaf_node_attr_index.shape)
+        # print("center_node_attr_index:", center_node_attr_index.shape)
+        # print("edges_index:", edges_index.shape)
+        # print("leaf_node_index:", leaf_node_index.shape)
+        # print("leaf_node_attr_index:", leaf_node_attr_index.shape)
         num_edge = edges_index.shape[0]
 
         center_node_attr_embeddings = np.zeros((1, max_num_attr, 300))
@@ -144,10 +144,10 @@ class ScannetReferenceDataset(Dataset):
                 else:
                     leaf_node_attr_embeddings[token_idx][j] = np.zeros(300)
 
-        print("center_node_attr_embeddings:", center_node_attr_embeddings.shape)
-        print("edge_embeddings:", edge_embeddings.shape)
-        print("leaf_node_embeddings:", leaf_node_embeddings.shape)
-        print("leaf_node_attr_embeddings:", leaf_node_attr_embeddings.shape)
+        # print("center_node_attr_embeddings:", center_node_attr_embeddings.shape)
+        # print("edge_embeddings:", edge_embeddings.shape)
+        # print("leaf_node_embeddings:", leaf_node_embeddings.shape)
+        # print("leaf_node_attr_embeddings:", leaf_node_attr_embeddings.shape)
 
         # ------------------------------- end parsing features ------------------------------
         # get pc
@@ -363,15 +363,15 @@ class ScannetReferenceDataset(Dataset):
             self.unique_multiple_lookup[scene_id][str(object_id)][str(ann_id)]).astype(np.int64)
 
         # ------------------------------- PARSING embeddings ------------------------------
-        data_dict['edge_embeddings'] = edge_embeddings                                     # [E, 300]
-        data_dict['leaf_node_embeddings'] = leaf_node_embeddings                           # [E, 300]
-        data_dict['leaf_node_attr_embeddings'] = leaf_node_attr_embeddings                 # [E, A, 300]
-        data_dict['center_node_attr_embeddings'] = center_node_attr_embeddings             # [1, A, 300]
+        data_dict['parse_edge_embeddings'] = edge_embeddings                                     # [E, 300]
+        data_dict['parse_leaf_node_embeddings'] = leaf_node_embeddings                           # [E, 300]
+        data_dict['parse_leaf_node_attr_embeddings'] = leaf_node_attr_embeddings                 # [E, A, 300]
+        data_dict['parse_center_node_attr_embeddings'] = center_node_attr_embeddings             # [1, A, 300]
  
-        data_dict['edges_index'] = edges_index                                             # [E, ]
-        data_dict['leaf_node_index'] = leaf_node_index                                     # [E, ]
-        data_dict['leaf_node_attr_index'] = leaf_node_attr_index                           # [E, A]
-        data_dict['center_node_attr_index'] = center_node_attr_index                       # [1, A]
+        data_dict['parse_edges_index'] = edges_index                                             # [E, ]
+        data_dict['parse_leaf_node_index'] = leaf_node_index                                     # [E, ]
+        data_dict['parse_leaf_node_attr_index'] = leaf_node_attr_index                           # [E, A]
+        data_dict['parse_center_node_attr_index'] = center_node_attr_index                       # [1, A]
 
         return data_dict
 
