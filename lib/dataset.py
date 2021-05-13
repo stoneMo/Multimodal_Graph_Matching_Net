@@ -130,7 +130,7 @@ class ScannetReferenceDataset(Dataset):
             leaf_token_id = leaf_node_index[token_idx]
 
             if edge_token_id >= len(tokens): print(edge_token_id, len(tokens))
-            if leaf_token_id < len(tokens): print(leaf_token_id, len(tokens))
+            if leaf_token_id >= len(tokens): print(leaf_token_id, len(tokens))
 
             edge_token = tokens[edge_token_id]
             leaf_node_token = tokens[leaf_token_id]
