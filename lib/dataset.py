@@ -99,6 +99,7 @@ class ScannetReferenceDataset(Dataset):
         # ------------------------------- parsing features ------------------------------
         # get parsing features 
         max_num_attr = CONF.NUM_NODE_ATTR
+        center_node_index = np.array([self.center_node_index_all[idx]])       # [1,]
         center_node_attr_index = np.expand_dims(self.center_node_attr_index_all[idx][:max_num_attr], axis=0)   # [1, 300]
         center_node_attr_index = np.where(center_node_attr_index == 300, max_num_attr, center_node_attr_index)
         edges_index = np.array(self.edges_index_all[idx])                   # [E,]
@@ -130,8 +131,17 @@ class ScannetReferenceDataset(Dataset):
             edge_token_id = edges_index[token_idx]
             leaf_token_id = leaf_node_index[token_idx]
 
-            edge_token = tokens[edge_token_id]
-            leaf_node_token = tokens[leaf_token_id]
+            if edge_token_id < len(tokens):
+                edge_token = tokens[edge_token_id]
+            else:
+                edge_token = tokens[len(tokens)-1]
+                # print(edge_token_id, len(tokens))
+
+            if leaf_token_id < len(tokens): 
+                leaf_node_token = tokens[leaf_token_id]
+            else:
+                leaf_node_token = tokens[len(tokens)-1]
+                # print(leaf_token_id, len(tokens))
             
             edge_embeddings[token_idx] = self._gen_embedding(edge_token)
             leaf_node_embeddings[token_idx] = self._gen_embedding(leaf_node_token)
@@ -554,6 +564,7 @@ class ScannetReferenceDataset(Dataset):
         print("loading parsing data...") 
 
         data_path = CONF.PARSING_DIR
+        self.center_node_index_all = np.load(os.path.join(data_path, self.split+"_center_node_index.npy"), allow_pickle=True)
         self.center_node_attr_index_all = np.load(os.path.join(data_path, self.split+"_center_node_attr_index.npy"), allow_pickle=True)
         self.edges_index_all = np.load(os.path.join(data_path, self.split+"_edges_index.npy"), allow_pickle=True)
         self.leaf_node_index_all = np.load(os.path.join(data_path, self.split+"_leaf_node_index.npy"), allow_pickle=True)
