@@ -533,28 +533,9 @@ class ScannetReferenceDataset(Dataset):
     def collate_fn(inputs):
         
         # ------------------------------- PARSING embeddings ------------------------------
-
-        print("type_inputs:", type(inputs))
-        print("inputs:", len(inputs))
-        idx_all = []
-        parse_edge_embeddings_all = []
-        for idx, input in enumerate(inputs):
-            parse_edge_embeddings = input['parse_edge_embeddings']                      # [E, 300]
-            print("parse_edge_embeddings:", parse_edge_embeddings.shape)
-            num_edge = parse_edge_embeddings.shape[0]
-            idx_all.extend([idx] * num_edge)
-
-            parse_leaf_node_embeddings = input['parse_leaf_node_embeddings']            # [E, 300]
-            parse_leaf_node_attr_embeddings = input['parse_leaf_node_attr_embeddings']  # [E, A, 300] 
-            parse_edge_embeddings_all.append(parse_edge_embeddings)
-
-        parse_edge_embeddings_array = np.vstack(parse_edge_embeddings_all, axis=0)
-        print("parse_edge_embeddings_array:", parse_edge_embeddings_array.shape)
-        print("idx_all:", idx_all)
-
+        collate_fn_parse()
 
         # ------------------------------- END PARSING embeddings ------------------------------
-
 
         outputs = sparse_collate_fn(inputs)
         pts_batch = []
@@ -568,7 +549,6 @@ class ScannetReferenceDataset(Dataset):
         outputs['pred_obb_batch'] = pred_obb_batch
 
         return outputs
-
     
     def _load_parsing_data(self):
 
@@ -587,3 +567,23 @@ class ScannetReferenceDataset(Dataset):
         else:
             embeddings = self.glove["unk"]
         return embeddings
+
+def collate_fn_parse(inputs):
+    
+    print("type_inputs:", type(inputs))
+    print("inputs:", len(inputs))
+    idx_all = []
+    parse_edge_embeddings_all = []
+    for idx, input in enumerate(inputs):
+        parse_edge_embeddings = input['parse_edge_embeddings']                      # [E, 300]
+        print("parse_edge_embeddings:", parse_edge_embeddings.shape)
+        num_edge = parse_edge_embeddings.shape[0]
+        idx_all.extend([idx] * num_edge)
+
+        parse_leaf_node_embeddings = input['parse_leaf_node_embeddings']            # [E, 300]
+        parse_leaf_node_attr_embeddings = input['parse_leaf_node_attr_embeddings']  # [E, A, 300] 
+        parse_edge_embeddings_all.append(parse_edge_embeddings)
+
+    parse_edge_embeddings_array = np.vstack(parse_edge_embeddings_all, axis=0)
+    print("parse_edge_embeddings_array:", parse_edge_embeddings_array.shape)
+    print("idx_all:", idx_all)
