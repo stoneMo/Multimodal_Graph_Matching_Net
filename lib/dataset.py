@@ -52,6 +52,10 @@ class ScannetReferenceDataset(Dataset):
         # load data
         self._load_data()
 
+        # load parsing data 
+        if self.split != 'test':
+            self._load_parsing_data()
+
         with open(GLOVE_PICKLE, "rb") as f:
             self.glove = pickle.load(f)
 
