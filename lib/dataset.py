@@ -97,10 +97,11 @@ class ScannetReferenceDataset(Dataset):
 
         # ------------------------------- parsing features ------------------------------
         # get parsing features 
-        center_node_attr = np.expand_dims(self.center_node_attr_index_all[idx], axis=0)   # [1, 300]
+        max_num_attr = CONF.NUM.NODE_ATTR
+        center_node_attr = np.expand_dims(self.center_node_attr_index_all[idx][:max_num_attr], axis=0)   # [1, 300]
         edges_index = np.array(self.edges_index_all[idx])                   # [E,]
         leaf_node_index = np.array(self.leaf_node_index_all[idx])           # [E,]
-        leaf_node_attr_index = np.array(self.leaf_node_attr_index_all[idx])  # [E, 300]
+        leaf_node_attr_index = np.array(self.leaf_node_attr_index_all[idx])[:, max_num_attr]  # [E, 300]
         print("center_node_attr:", center_node_attr.shape)
         print("edges_index:", edges_index.shape)
         print("leaf_node_index:", leaf_node_index.shape)
@@ -109,7 +110,7 @@ class ScannetReferenceDataset(Dataset):
 
         edge_embeddings = np.zeros((num_edge, 300))
         leaf_node_embeddings = np.zeros((num_edge, 300))
-        leaf_node_attr_embeddings = np.zeros((num_edge, 300))
+        leaf_node_attr_embeddings = np.zeros((num_edge, max_num_attr, 300))
 
         for token_idx in range(num_edge):
 
@@ -119,11 +120,17 @@ class ScannetReferenceDataset(Dataset):
 
             edge_token = tokens[edge_token_id]
             leaf_node_token = tokens[leaf_token_id]
-            leaf_attr_token = tokens[leaf_attr_token_id]
             
             edge_embeddings[token_idx] = self._gen_embedding(edge_token)
             leaf_node_embeddings[token_idx] = self._gen_embedding(leaf_node_token)
-            leaf_node_attr_embeddings[token_idx] = self._gen_embedding(leaf_attr_token)
+
+            leaf_attr_token_all = tokens[leaf_attr_token_id]
+            for j in range(max_num_attr):
+                leaf_attr_token = leaf_attr_token_all[j]
+                if j != max_num_attr:
+                    leaf_node_attr_embeddings[token_idx][j] = self._gen_embedding(leaf_attr_token)
+                else:
+                    leaf_node_attr_embeddings[token_idx][j] = np.zeros(300)
 
         print("edge_embeddings:", edge_embeddings.shape)
         print("leaf_node_embeddings:", leaf_node_embeddings.shape)

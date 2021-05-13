@@ -86,3 +86,4 @@ CONF.TRAIN.SEED = 42
 
 # parsing_data
 CONF.PARSING_DIR = "data/parsing_data/"  # TODO change this
+CONF.NUM.LEAF_ATTR = 20
