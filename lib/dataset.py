@@ -624,13 +624,14 @@ def collate_fn_parse(inputs):
     print("idx_all:", outputs_parse['parse_batch_index'])
 
 
-    inputs.pop('parse_edge_embeddings')
-    inputs.pop('parse_leaf_node_embeddings')
-    inputs.pop('parse_leaf_node_attr_embeddings')
+    for input in inputs:
+        input.pop('parse_edge_embeddings')
+        input.pop('parse_leaf_node_embeddings')
+        input.pop('parse_leaf_node_attr_embeddings')
 
-    inputs.pop('parse_edges_index')
-    inputs.pop('parse_leaf_node_index')
-    inputs.pop('parse_leaf_node_attr_index')
+        input.pop('parse_edges_index')
+        input.pop('parse_leaf_node_index')
+        input.pop('parse_leaf_node_attr_index')
 
     return outputs_parse
 
