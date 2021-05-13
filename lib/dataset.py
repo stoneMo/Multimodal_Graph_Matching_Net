@@ -97,8 +97,16 @@ class ScannetReferenceDataset(Dataset):
 
 
         # get parsing features 
+        center_node_attr = self.center_node_attr_index_all[idx]   # [1, 300]
+        edges_index = self.edges_index_all[idx]                   # [E, 300]
+        leaf_node_index = self.leaf_node_index_all[idx]           # [E, 300]
+        leaf_node_attr_index = self.leaf_node_attr_index_all[idx]  # [E, 300]
 
 
+        print("center_node_attr:", center_node_attr.shape)
+        print("edges_index:", edges_index.shape)
+        print("leaf_node_index:", leaf_node_index.shape)
+        print("leaf_node_attr_index:", leaf_node_attr_index.shape)
 
 
 
