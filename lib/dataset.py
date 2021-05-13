@@ -119,7 +119,7 @@ class ScannetReferenceDataset(Dataset):
 
             edge_token_id = edges_index[token_idx]
             leaf_token_id = leaf_node_index[token_idx]
-            leaf_attr_token_id = leaf_node_attr_index[token_idx]
+            leaf_attr_token_id_all = leaf_node_attr_index[token_idx]
 
             edge_token = tokens[edge_token_id]
             leaf_node_token = tokens[leaf_token_id]
@@ -127,10 +127,10 @@ class ScannetReferenceDataset(Dataset):
             edge_embeddings[token_idx] = self._gen_embedding(edge_token)
             leaf_node_embeddings[token_idx] = self._gen_embedding(leaf_node_token)
 
-            leaf_attr_token_all = tokens[leaf_attr_token_id]
             for j in range(max_num_attr):
-                leaf_attr_token = leaf_attr_token_all[j]
+                leaf_attr_token_id = leaf_attr_token_id_all[j]
                 if j != max_num_attr:
+                    leaf_attr_token = tokens[leaf_attr_token_id]
                     leaf_node_attr_embeddings[token_idx][j] = self._gen_embedding(leaf_attr_token)
                 else:
                     leaf_node_attr_embeddings[token_idx][j] = np.zeros(300)
