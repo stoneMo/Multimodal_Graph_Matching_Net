@@ -129,6 +129,7 @@ class ScannetReferenceDataset(Dataset):
             edge_token_id = edges_index[token_idx]
             leaf_token_id = leaf_node_index[token_idx]
 
+            print(edge_token_id, len(tokens))
             edge_token = tokens[edge_token_id]
             leaf_node_token = tokens[leaf_token_id]
             
