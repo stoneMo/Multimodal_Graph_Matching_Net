@@ -585,7 +585,7 @@ def collate_fn_parse(inputs):
 
     for idx, input in enumerate(inputs):
         parse_edge_embeddings = input['parse_edge_embeddings']                      # [E, 300]
-        print("parse_edge_embeddings:", parse_edge_embeddings.shape)
+        # print("parse_edge_embeddings:", parse_edge_embeddings.shape)
         num_edge = parse_edge_embeddings.shape[0]
         idx_all.extend([idx] * num_edge)
 
