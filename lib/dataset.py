@@ -98,8 +98,8 @@ class ScannetReferenceDataset(Dataset):
         # ------------------------------- parsing features ------------------------------
         # get parsing features 
         max_num_attr = CONF.NUM_NODE_ATTR
-        center_node_attr = np.expand_dims(self.center_node_attr_index_all[idx][:max_num_attr], axis=0)   # [1, 300]
-        center_node_attr = np.where(center_node_attr == 300, max_num_attr, center_node_attr)
+        center_node_attr_index = np.expand_dims(self.center_node_attr_index_all[idx][:max_num_attr], axis=0)   # [1, 300]
+        center_node_attr_index = np.where(center_node_attr_index == 300, max_num_attr, center_node_attr_index)
         edges_index = np.array(self.edges_index_all[idx])                   # [E,]
         leaf_node_index = np.array(self.leaf_node_index_all[idx])           # [E,]
         leaf_node_attr_index = np.array(self.leaf_node_attr_index_all[idx])[:, :max_num_attr]  # [E, 300]
@@ -111,10 +111,19 @@ class ScannetReferenceDataset(Dataset):
         print("leaf_node_attr_index:", leaf_node_attr_index.shape)
         num_edge = edges_index.shape[0]
 
+        center_node_attr_embeddings = np.zeros((1, max_num_attr))
         edge_embeddings = np.zeros((num_edge, 300))
         leaf_node_embeddings = np.zeros((num_edge, 300))
         leaf_node_attr_embeddings = np.zeros((num_edge, max_num_attr, 300))
 
+        for idx in range(max_num_attr):
+            center_attr_token_id = int(center_node_attr_index[:,idx])
+            if center_attr_token_id != max_num_attr:
+                center_attr_token = tokens[center_attr_token_id]
+                center_node_attr_embeddings[:,idx] = self._gen_embedding(center_attr_token)
+            else:
+                center_node_attr_embeddings[:,idx] = np.zeros(300)
+        
         for token_idx in range(num_edge):
 
             edge_token_id = edges_index[token_idx]
@@ -135,11 +144,12 @@ class ScannetReferenceDataset(Dataset):
                 else:
                     leaf_node_attr_embeddings[token_idx][j] = np.zeros(300)
 
+        print("center_node_attr_embeddings:", center_node_attr_embeddings.shape)
         print("edge_embeddings:", edge_embeddings.shape)
         print("leaf_node_embeddings:", leaf_node_embeddings.shape)
         print("leaf_node_attr_embeddings:", leaf_node_attr_embeddings.shape)
 
-
+        # ------------------------------- end parsing features ------------------------------
         # get pc
         mesh_vertices = np.load(os.path.join(CONF.PATH.SCANNET_DATA, scene_id) + "_aligned_vert.npy")  # axis-aligned
         instance_labels = np.load(os.path.join(CONF.PATH.SCANNET_DATA, scene_id) + "_ins_label_pg.npy")
@@ -353,7 +363,15 @@ class ScannetReferenceDataset(Dataset):
             self.unique_multiple_lookup[scene_id][str(object_id)][str(ann_id)]).astype(np.int64)
 
         # ------------------------------- PARSING embeddings ------------------------------
-        
+        data_dict['edge_embeddings'] = edge_embeddings                                     # [E, 300]
+        data_dict['leaf_node_embeddings'] = leaf_node_embeddings                           # [E, 300]
+        data_dict['leaf_node_attr_embeddings'] = leaf_node_attr_embeddings                 # [E, A, 300]
+        data_dict['center_node_attr_embeddings'] = center_node_attr_embeddings             # [1, A, 300]
+ 
+        data_dict['edges_index'] = edges_index                                             # [E, ]
+        data_dict['leaf_node_index'] = leaf_node_index                                     # [E, ]
+        data_dict['leaf_node_attr_index'] = leaf_node_attr_index                           # [E, A]
+        data_dict['center_node_attr_index'] = center_node_attr_index                       # [1, A]
 
         return data_dict
 
