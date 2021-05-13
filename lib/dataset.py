@@ -549,7 +549,7 @@ class ScannetReferenceDataset(Dataset):
         outputs['pred_obb_batch'] = pred_obb_batch
         
         outputs.update(output_parse) 
-        
+
         return outputs
     
     def _load_parsing_data(self):
@@ -586,7 +586,7 @@ def collate_fn_parse(inputs):
     parse_leaf_node_attr_index_all = []
 
     for idx, input in enumerate(inputs):
-        parse_edge_embeddings = input['parse_edge_embeddings']                      # [E, 300]
+        parse_edge_embeddings = input['parse_edge_embeddings']                      # [E, 300] 
         # print("parse_edge_embeddings:", parse_edge_embeddings.shape)
         num_edge = parse_edge_embeddings.shape[0]
         idx_all.extend([idx] * num_edge)
