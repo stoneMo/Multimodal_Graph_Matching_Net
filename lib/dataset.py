@@ -531,6 +531,29 @@ class ScannetReferenceDataset(Dataset):
 
     @staticmethod
     def collate_fn(inputs):
+        
+        # ------------------------------- PARSING embeddings ------------------------------
+
+        print("type_inputs:", type(inputs))
+        print("inputs:", len(inputs))
+        idx_all = []
+        parse_edge_embeddings_all = []
+        for idx, input in enumerate(inputs):
+            parse_edge_embeddings = input['parse_edge_embeddings']                      # [E, 300]
+            num_edge = parse_edge_embeddings.shape[0]
+            idx_all.extend([idx] * num_edge)
+
+            parse_leaf_node_embeddings = input['parse_leaf_node_embeddings']            # [E, 300]
+            parse_leaf_node_attr_embeddings = input['parse_leaf_node_attr_embeddings']  # [E, A, 300] 
+            parse_edge_embeddings_all.append(parse_edge_embeddings)
+
+        parse_edge_embeddings_array = np.stack(parse_edge_embeddings_all, axis=0)
+        print("parse_edge_embeddings_array:", parse_edge_embeddings_array.shape)
+
+
+        # ------------------------------- END PARSING embeddings ------------------------------
+
+
         outputs = sparse_collate_fn(inputs)
         pts_batch = []
         pred_obb_batch = []
