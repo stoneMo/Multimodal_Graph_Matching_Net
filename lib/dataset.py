@@ -546,7 +546,7 @@ class ScannetReferenceDataset(Dataset):
 
         outputs['pts_batch'] = pts_batch
         outputs['pred_obb_batch'] = pred_obb_batch
-
+        outputs.update(output_parse)
         return outputs
 
     def _load_parsing_data(self):
@@ -612,15 +612,15 @@ def collate_fn_parse(inputs):
 
     outputs_parse['parse_batch_index'] = np.array(idx_all)
 
-    print("parse_edge_embeddings:", outputs_parse['parse_edge_embeddings'].shape)
-    print("parse_leaf_node_embeddings:", outputs_parse['parse_leaf_node_embeddings'].shape)
-    print("parse_leaf_node_attr_embeddings:", outputs_parse['parse_leaf_node_attr_embeddings'].shape)
+    # print("parse_edge_embeddings:", outputs_parse['parse_edge_embeddings'].shape)
+    # print("parse_leaf_node_embeddings:", outputs_parse['parse_leaf_node_embeddings'].shape)
+    # print("parse_leaf_node_attr_embeddings:", outputs_parse['parse_leaf_node_attr_embeddings'].shape)
     
-    print("parse_edges_index:", outputs_parse['parse_edges_index'].shape)
-    print("parse_leaf_node_index:", outputs_parse['parse_leaf_node_index'].shape)
-    print("parse_leaf_node_attr_index:", outputs_parse['parse_leaf_node_attr_index'].shape)
+    # print("parse_edges_index:", outputs_parse['parse_edges_index'].shape)
+    # print("parse_leaf_node_index:", outputs_parse['parse_leaf_node_index'].shape)
+    # print("parse_leaf_node_attr_index:", outputs_parse['parse_leaf_node_attr_index'].shape)
 
-    print("parse_batch_index:", outputs_parse['parse_batch_index'])
+    # print("parse_batch_index:", outputs_parse['parse_batch_index'])
 
 
     for input in inputs:
