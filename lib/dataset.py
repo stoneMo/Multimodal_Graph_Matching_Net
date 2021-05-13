@@ -95,21 +95,39 @@ class ScannetReferenceDataset(Dataset):
         lang_len = len([token for token in lang_token if not token.isspace()])
         lang_len = lang_len if lang_len <= CONF.TRAIN.MAX_DES_LEN else CONF.TRAIN.MAX_DES_LEN
 
-
+        # ------------------------------- parsing features ------------------------------
         # get parsing features 
-        center_node_attr = self.center_node_attr_index_all[idx]   # [1, 300]
-        edges_index = np.array(self.edges_index_all[idx])                   # [E, 300]
-        leaf_node_index = np.array(self.leaf_node_index_all[idx])           # [E, 300]
+        center_node_attr = np.expand_dims(self.center_node_attr_index_all[idx], axis=0)   # [1, 300]
+        edges_index = np.array(self.edges_index_all[idx])                   # [E,]
+        leaf_node_index = np.array(self.leaf_node_index_all[idx])           # [E,]
         leaf_node_attr_index = np.array(self.leaf_node_attr_index_all[idx])  # [E, 300]
-
-
         print("center_node_attr:", center_node_attr.shape)
         print("edges_index:", edges_index.shape)
         print("leaf_node_index:", leaf_node_index.shape)
         print("leaf_node_attr_index:", leaf_node_attr_index.shape)
+        num_edge = edges_index.shape[0]
 
+        edge_embeddings = np.zeros((num_edge, 300))
+        leaf_node_embeddings = np.zeros((num_edge, 300))
+        leaf_node_attr_embeddings = np.zeros((num_edge, 300))
 
+        for token_idx in range(num_edge):
 
+            edge_token_id = edges_index[token_idx]
+            leaf_token_id = leaf_node_index[token_idx]
+            leaf_attr_token_id = leaf_node_attr_index[token_idx]
+
+            edge_token = tokens[edge_token_id]
+            leaf_node_token = tokens[leaf_token_id]
+            leaf_attr_token = tokens[leaf_attr_token_id]
+            
+            edge_embeddings[token_idx] = self._gen_embedding(edge_token)
+            leaf_node_embeddings[token_idx] = self._gen_embedding(leaf_node_token)
+            leaf_node_attr_embeddings[token_idx] = self._gen_embedding(leaf_attr_token)
+
+        print("edge_embeddings:", edge_embeddings.shape)
+        print("leaf_node_embeddings:", leaf_node_embeddings.shape)
+        print("leaf_node_attr_embeddings:", leaf_node_attr_embeddings.shape)
 
         # get pc
         mesh_vertices = np.load(os.path.join(CONF.PATH.SCANNET_DATA, scene_id) + "_aligned_vert.npy")  # axis-aligned
@@ -504,3 +522,11 @@ class ScannetReferenceDataset(Dataset):
         self.edges_index_all = np.load(os.path.join(data_path, self.split+"_edges_index.npy"), allow_pickle=True)
         self.leaf_node_index_all = np.load(os.path.join(data_path, self.split+"_leaf_node_index.npy"), allow_pickle=True)
         self.leaf_node_attr_index_all = np.load(os.path.join(data_path, self.split+"_leaf_node_attr_index.npy"), allow_pickle=True)
+
+    def _gen_embedding(self, token):
+
+        if token in self.glove:
+            embeddings = self.glove[token]
+        else:
+            embeddings = self.glove["unk"]
+        return embeddings
