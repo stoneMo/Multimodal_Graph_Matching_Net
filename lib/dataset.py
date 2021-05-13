@@ -547,7 +547,9 @@ class ScannetReferenceDataset(Dataset):
 
         outputs['pts_batch'] = pts_batch
         outputs['pred_obb_batch'] = pred_obb_batch
-
+        
+        outputs.update(output_parse) 
+        
         return outputs
     
     def _load_parsing_data(self):
