@@ -593,6 +593,7 @@ def collate_fn_parse(inputs):
         parse_leaf_node_attr_embeddings = input['parse_leaf_node_attr_embeddings']  # [E, A, 300] 
         
         parse_edges_index = input['parse_edges_index']                              # [E, ]
+        print("parse_edges_index:", parse_edges_index.shape)
         parse_leaf_node_index = input['parse_leaf_node_index']                      # [E, ] 
         parse_leaf_node_attr_index = input['parse_leaf_node_attr_index']            # [E, A] 
                                      
