@@ -123,7 +123,18 @@ def get_model(args):
             if CONF.textguided_module:
                 model.textguided = pretrained_model.textguided
         else:
-            raise NotImplementedError("Haven't implemented MGMN")
+            pretrained_model = MGMNNet()(
+            input_feature_dim=input_channels,
+            args=CONF
+            )
+            pretrained_path = os.path.join(args.use_pretrained, "model.pth")
+            pretrained_model.load_state_dict(torch.load(pretrained_path), strict=False)
+            model.lang = pretrained_model.lang
+            if CONF.attribute_module:
+                model.attribute = pretrained_model.attribute
+            if CONF.relation_module:
+                model.relation = pretrained_model.relation
+            # raise NotImplementedError("Haven't implemented MGMN")
 
     # to CUDA
     model = nn.DataParallel(model)
