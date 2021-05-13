@@ -621,7 +621,7 @@ def collate_fn_parse(inputs):
     print("parse_leaf_node_index:", outputs_parse['parse_leaf_node_index'].shape)
     print("parse_leaf_node_attr_index:", outputs_parse['parse_leaf_node_attr_index'].shape)
 
-    print("idx_all:", outputs_parse['parse_batch_index'])
+    print("parse_batch_index:", outputs_parse['parse_batch_index'])
 
 
     for input in inputs:
