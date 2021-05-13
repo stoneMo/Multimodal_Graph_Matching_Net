@@ -18,6 +18,7 @@ from lib.solver import Solver
 from lib.config import CONF
 from models.IR.instancerefer import InstanceRefer
 from models.TGNN.refnet import RefNet
+from models.MGMN.mgmn import MGMNNet
 
 SCANREFER_TRAIN = json.load(open(os.path.join(CONF.PATH.DATA, "ScanRefer_filtered_train.json")))
 SCANREFER_VAL = json.load(open(os.path.join(CONF.PATH.DATA, "ScanRefer_filtered_val.json")))
@@ -85,7 +86,11 @@ def get_model(args):
             args=CONF
         )
     else:
-        raise NotImplementedError("Haven't implemented MGMN")
+        model = MGMNNet()(
+            input_feature_dim=input_channels,
+            args=CONF
+        )
+        # raise NotImplementedError("Haven't implemented MGMN")
 
     # trainable model
     if args.use_pretrained:

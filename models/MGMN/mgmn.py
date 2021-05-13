@@ -11,7 +11,7 @@ sys.path.append(os.path.join(os.getcwd(), "lib"))  # HACK add the lib folder
 sys.path.append(os.path.join(os.getcwd(), "models/IR"))  # HACK add the lib folder
 sys.path.append(os.path.join(os.getcwd(), "models/MGMN"))
 
-class MGMN(nn.Module):
+class MGMNNet(nn.Module):
     def __init__(self, input_feature_dim=0, args=None):
         super().__init__()
         self.args = args
