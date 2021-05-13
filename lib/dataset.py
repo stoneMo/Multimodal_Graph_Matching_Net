@@ -111,7 +111,7 @@ class ScannetReferenceDataset(Dataset):
         print("leaf_node_attr_index:", leaf_node_attr_index.shape)
         num_edge = edges_index.shape[0]
 
-        center_node_attr_embeddings = np.zeros((1, max_num_attr))
+        center_node_attr_embeddings = np.zeros((1, max_num_attr, 300))
         edge_embeddings = np.zeros((num_edge, 300))
         leaf_node_embeddings = np.zeros((num_edge, 300))
         leaf_node_attr_embeddings = np.zeros((num_edge, max_num_attr, 300))
