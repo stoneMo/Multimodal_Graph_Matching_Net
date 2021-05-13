@@ -128,8 +128,8 @@ class ScannetReferenceDataset(Dataset):
 
             leaf_attr_token_id_all = leaf_node_attr_index[token_idx]
             for j in range(max_num_attr):
-                leaf_attr_token_id = leaf_attr_token_id_all[j]
-                if j != max_num_attr:
+                leaf_attr_token_id = int(leaf_attr_token_id_all[j])
+                if leaf_attr_token_id != max_num_attr:
                     leaf_attr_token = tokens[leaf_attr_token_id]
                     leaf_node_attr_embeddings[token_idx][j] = self._gen_embedding(leaf_attr_token)
                 else:
