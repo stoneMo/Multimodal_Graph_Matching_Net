@@ -106,6 +106,7 @@ class ScannetReferenceDataset(Dataset):
         leaf_node_attr_index = np.array(self.leaf_node_attr_index_all[idx])[:, :max_num_attr]  # [E, 300]
         leaf_node_attr_index = np.where(leaf_node_attr_index == 300, max_num_attr, leaf_node_attr_index)
         
+        print("center_node_index:", center_node_index.shape)
         # print("center_node_attr_index:", center_node_attr_index.shape)
         # print("edges_index:", edges_index.shape)
         # print("leaf_node_index:", leaf_node_index.shape)
