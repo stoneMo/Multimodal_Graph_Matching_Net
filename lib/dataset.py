@@ -571,8 +571,8 @@ def collate_fn_parse(inputs):
 
     outputs_parse = dict()
     
-    print("type_inputs:", type(inputs))
-    print("inputs:", len(inputs))
+    # print("type_inputs:", type(inputs))
+    # print("inputs:", len(inputs))
     idx_all = []
     parse_edge_embeddings_all = []
     parse_leaf_node_embeddings_all = []
