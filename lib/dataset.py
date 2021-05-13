@@ -576,6 +576,13 @@ def collate_fn_parse(inputs):
     print("inputs:", len(inputs))
     idx_all = []
     parse_edge_embeddings_all = []
+    parse_leaf_node_embeddings_all = []
+    parse_leaf_node_attr_embeddings_all = []
+
+    parse_edges_index_all = []
+    parse_leaf_node_index_all = []
+    parse_leaf_node_attr_index_all = []
+
     for idx, input in enumerate(inputs):
         parse_edge_embeddings = input['parse_edge_embeddings']                      # [E, 300]
         print("parse_edge_embeddings:", parse_edge_embeddings.shape)
@@ -584,16 +591,46 @@ def collate_fn_parse(inputs):
 
         parse_leaf_node_embeddings = input['parse_leaf_node_embeddings']            # [E, 300]
         parse_leaf_node_attr_embeddings = input['parse_leaf_node_attr_embeddings']  # [E, A, 300] 
+        
+        parse_edges_index = input['parse_edges_index']                              # [E, ]
+        parse_leaf_node_index = input['parse_leaf_node_index']                      # [E, ] 
+        parse_leaf_node_attr_index = input['parse_leaf_node_attr_index']            # [E, A] 
+                                     
         parse_edge_embeddings_all.append(parse_edge_embeddings)
+        parse_leaf_node_embeddings_all.append(parse_leaf_node_embeddings)
+        parse_leaf_node_attr_embeddings_all.append(parse_leaf_node_attr_embeddings)
 
-    parse_edge_embeddings_array = np.vstack(parse_edge_embeddings_all)
-    print("parse_edge_embeddings_array:", parse_edge_embeddings_array.shape)
-    print("idx_all:", idx_all)
+        parse_edges_index_all.append(parse_edges_index)
+        parse_leaf_node_index_all.append(parse_leaf_node_index)
+        parse_leaf_node_attr_index_all.append(parse_leaf_node_attr_index)
+
+    outputs_parse['parse_edge_embeddings'] = np.vstack(parse_edge_embeddings_all)
+    outputs_parse['parse_leaf_node_embeddings'] = np.vstack(parse_leaf_node_embeddings_all)
+    outputs_parse['parse_leaf_node_attr_embeddings'] = np.vstack(parse_leaf_node_attr_embeddings_all)
+    outputs_parse['parse_edges_index'] = np.vstack(parse_edges_index_all)
+    outputs_parse['parse_leaf_node_index'] = np.vstack(parse_leaf_node_index_all)
+    outputs_parse['parse_leaf_node_attr_index'] = np.vstack(parse_leaf_node_attr_index_all)
+
+    outputs_parse['parse_batch_index'] = np.array(idx_all)
+
+    print("parse_edge_embeddings:", outputs_parse['parse_edge_embeddings'].shape)
+    print("parse_leaf_node_embeddings:", outputs_parse['parse_leaf_node_embeddings'].shape)
+    print("parse_leaf_node_attr_embeddings:", outputs_parse['parse_leaf_node_attr_embeddings'].shape)
+    
+    print("parse_edges_index:", outputs_parse['parse_edges_index'].shape)
+    print("parse_leaf_node_index:", outputs_parse['parse_leaf_node_index'].shape)
+    print("parse_leaf_node_attr_index:", outputs_parse['parse_leaf_node_attr_index'].shape)
+
+    print("idx_all:", outputs_parse['parse_batch_index'])
 
 
+    inputs.pop('parse_edge_embeddings')
+    inputs.pop('parse_leaf_node_embeddings')
+    inputs.pop('parse_leaf_node_attr_embeddings')
 
-
-
+    inputs.pop('parse_edges_index')
+    inputs.pop('parse_leaf_node_index')
+    inputs.pop('parse_leaf_node_attr_index')
 
     return outputs_parse
 
