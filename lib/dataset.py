@@ -52,9 +52,9 @@ class ScannetReferenceDataset(Dataset):
         # load data
         self._load_data()
 
-        # load parsing data
-        self._load_parsing_data()
-
+        # load parsing data 
+        if self.split != 'test':
+            self._load_parsing_data()
 
         with open(GLOVE_PICKLE, "rb") as f:
             self.glove = pickle.load(f)
@@ -94,6 +94,14 @@ class ScannetReferenceDataset(Dataset):
         lang_token = tokens
         lang_len = len([token for token in lang_token if not token.isspace()])
         lang_len = lang_len if lang_len <= CONF.TRAIN.MAX_DES_LEN else CONF.TRAIN.MAX_DES_LEN
+
+
+        # get parsing features 
+
+
+
+
+
 
         # get pc
         mesh_vertices = np.load(os.path.join(CONF.PATH.SCANNET_DATA, scene_id) + "_aligned_vert.npy")  # axis-aligned
@@ -481,9 +489,10 @@ class ScannetReferenceDataset(Dataset):
     
     def _load_parsing_data(self):
 
+        print("loading parsing data...") 
+
         data_path = CONF.PARSING_DIR
-        self.center_node_attr_index_all = np.load(os.path.join(data_path, split+"_center_node_attr_index.npy"), allow_pickle=True)
-        self.edges_index_all = np.load(os.path.join(data_path, split+"_edges_index.npy"), allow_pickle=True)
-        self.leaf_node_index_all = np.load(os.path.join(data_path, split+"_leaf_node_index.npy"), allow_pickle=True)
-        self.leaf_node_attr_index_all = np.load(os.path.join(data_path, split+"_leaf_node_attr_index.npy"), allow_pickle=True)
-    
+        self.center_node_attr_index_all = np.load(os.path.join(data_path, self.split+"_center_node_attr_index.npy"), allow_pickle=True)
+        self.edges_index_all = np.load(os.path.join(data_path, self.split+"_edges_index.npy"), allow_pickle=True)
+        self.leaf_node_index_all = np.load(os.path.join(data_path, self.split+"_leaf_node_index.npy"), allow_pickle=True)
+        self.leaf_node_attr_index_all = np.load(os.path.join(data_path, self.split+"_leaf_node_attr_index.npy"), allow_pickle=True)
