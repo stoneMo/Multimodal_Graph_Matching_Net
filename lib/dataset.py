@@ -533,7 +533,7 @@ class ScannetReferenceDataset(Dataset):
     def collate_fn(inputs):
         
         # ------------------------------- PARSING embeddings ------------------------------
-        collate_fn_parse()
+        output_parse = collate_fn_parse(inputs)
 
         # ------------------------------- END PARSING embeddings ------------------------------
 
@@ -569,6 +569,8 @@ class ScannetReferenceDataset(Dataset):
         return embeddings
 
 def collate_fn_parse(inputs):
+
+    outputs_parse = dict()
     
     print("type_inputs:", type(inputs))
     print("inputs:", len(inputs))
@@ -587,3 +589,11 @@ def collate_fn_parse(inputs):
     parse_edge_embeddings_array = np.vstack(parse_edge_embeddings_all)
     print("parse_edge_embeddings_array:", parse_edge_embeddings_array.shape)
     print("idx_all:", idx_all)
+
+
+
+
+
+
+    return outputs_parse
+
