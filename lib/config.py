@@ -82,3 +82,7 @@ CONF.SCANNETV2_LIST = os.path.join(CONF.PATH.SCANNET_META, "scannetv2.txt")
 CONF.TRAIN = EasyDict()
 CONF.TRAIN.MAX_DES_LEN = 126
 CONF.TRAIN.SEED = 42
+
+
+# parsing_data
+CONF.PARSING_DIR = "data/parsing_data/"  # TODO change this

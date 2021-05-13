@@ -52,6 +52,10 @@ class ScannetReferenceDataset(Dataset):
         # load data
         self._load_data()
 
+        # load parsing data
+        self._load_parsing_data()
+
+
         with open(GLOVE_PICKLE, "rb") as f:
             self.glove = pickle.load(f)
 
@@ -473,3 +477,13 @@ class ScannetReferenceDataset(Dataset):
         outputs['pred_obb_batch'] = pred_obb_batch
 
         return outputs
+
+    
+    def _load_parsing_data(self):
+
+        data_path = CONF.PARSING_DIR
+        self.center_node_attr_index_all = np.load(os.path.join(data_path, split+"_center_node_attr_index.npy"), allow_pickle=True)
+        self.edges_index_all = np.load(os.path.join(data_path, split+"_edges_index.npy"), allow_pickle=True)
+        self.leaf_node_index_all = np.load(os.path.join(data_path, split+"_leaf_node_index.npy"), allow_pickle=True)
+        self.leaf_node_attr_index_all = np.load(os.path.join(data_path, split+"_leaf_node_attr_index.npy"), allow_pickle=True)
+    
