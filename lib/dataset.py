@@ -584,6 +584,6 @@ def collate_fn_parse(inputs):
         parse_leaf_node_attr_embeddings = input['parse_leaf_node_attr_embeddings']  # [E, A, 300] 
         parse_edge_embeddings_all.append(parse_edge_embeddings)
 
-    parse_edge_embeddings_array = np.vstack(parse_edge_embeddings_all, axis=0)
+    parse_edge_embeddings_array = np.vstack(parse_edge_embeddings_all)
     print("parse_edge_embeddings_array:", parse_edge_embeddings_array.shape)
     print("idx_all:", idx_all)
