@@ -98,7 +98,7 @@ class ScannetReferenceDataset(Dataset):
         # ------------------------------- parsing features ------------------------------
         # get parsing features 
         max_num_attr = CONF.NUM_NODE_ATTR
-        center_node_index = np.array(self.center_node_index_all[idx])       # [1,]
+        center_node_index = np.array([self.center_node_index_all[idx]])       # [1,]
         center_node_attr_index = np.expand_dims(self.center_node_attr_index_all[idx][:max_num_attr], axis=0)   # [1, 300]
         center_node_attr_index = np.where(center_node_attr_index == 300, max_num_attr, center_node_attr_index)
         edges_index = np.array(self.edges_index_all[idx])                   # [E,]
