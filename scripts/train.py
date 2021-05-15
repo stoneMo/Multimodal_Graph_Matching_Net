@@ -17,6 +17,7 @@ from lib.solver import Solver
 from lib.config import CONF
 from models.IR.instancerefer import InstanceRefer
 from models.TGNN.refnet import RefNet
+from models.MGMN.mgmnet import MGMNet
 
 SCANREFER_TRAIN = json.load(open(os.path.join(CONF.PATH.DATA, "ScanRefer_filtered_train.json")))
 SCANREFER_VAL = json.load(open(os.path.join(CONF.PATH.DATA, "ScanRefer_filtered_val.json")))
@@ -83,8 +84,11 @@ def get_model(args):
             input_feature_dim=input_channels,
             args=CONF
         )
-    else:
-        raise NotImplementedError("Haven't implemented MGMN")
+    elif CONF.model_name == 'MGMN':
+        model = MGMNet(
+            input_feature_dim=input_channels,
+            args=CONF
+        )
 
     # trainable model
     if args.use_pretrained:
@@ -116,8 +120,19 @@ def get_model(args):
                 model.attribute = pretrained_model.attribute
             if CONF.textguided_module:
                 model.textguided = pretrained_model.textguided
-        else:
-            raise NotImplementedError("Haven't implemented MGMN")
+        elif CONF.model_name == 'MGMN':
+            pretrained_model = MGMNet(
+            input_feature_dim=input_channels,
+            args=CONF
+            )
+            pretrained_path = os.path.join(args.use_pretrained, "model.pth")
+            pretrained_model.load_state_dict(torch.load(pretrained_path), strict=False)
+            model.lang = pretrained_model.lang
+            if CONF.attribute_module:
+                model.attribute = pretrained_model.attribute
+            if CONF.textguided_module:
+                model.textguided = pretrained_model.textguided
+            
 
     # to CUDA
     model = model.cuda()

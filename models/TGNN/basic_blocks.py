@@ -78,7 +78,7 @@ class TARelationConv(nn.Module):
         elif self.mode == 'full':
             row, col = knn(support_xyz, support_xyz, self.k, batch_index, batch_index)
         else:
-            raise NotImplementedError()
+            raise ValueError("mode should be either part or full")
         edge_index = torch.stack([col, row], dim=0)
         
         features = self.feat_encoder(features)

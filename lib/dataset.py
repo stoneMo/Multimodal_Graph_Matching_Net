@@ -375,15 +375,15 @@ class ScannetReferenceDataset(Dataset):
             self.unique_multiple_lookup[scene_id][str(object_id)][str(ann_id)]).astype(np.int64)
 
         # ------------------------------- PARSING embeddings ------------------------------
-        data_dict['parse_edge_embeddings'] = edge_embeddings                                     # [E, 300]
-        data_dict['parse_leaf_node_embeddings'] = leaf_node_embeddings                           # [E, 300]
-        data_dict['parse_leaf_node_attr_embeddings'] = leaf_node_attr_embeddings                 # [E, A, 300]
-        data_dict['parse_center_node_attr_embeddings'] = center_node_attr_embeddings             # [1, A, 300]
+        data_dict['parse_edge_embeddings'] = edge_embeddings.astype(np.float32)                         # [E, 300]
+        data_dict['parse_leaf_node_embeddings'] = leaf_node_embeddings.astype(np.float32)               # [E, 300]
+        data_dict['parse_leaf_node_attr_embeddings'] = leaf_node_attr_embeddings.astype(np.float32)     # [E, A, 300]
+        data_dict['parse_center_node_attr_embeddings'] = center_node_attr_embeddings.astype(np.float32) # [1, A, 300]
  
-        data_dict['parse_edges_index'] = edges_index                                             # [E, ]
-        data_dict['parse_leaf_node_index'] = leaf_node_index                                     # [E, ]
-        data_dict['parse_leaf_node_attr_index'] = leaf_node_attr_index                           # [E, A]
-        data_dict['parse_center_node_attr_index'] = center_node_attr_index                       # [1, A]
+        data_dict['parse_edges_index'] = edges_index.astype(np.int64)                                   # [E, ]
+        data_dict['parse_leaf_node_index'] = leaf_node_index.astype(np.int64)                           # [E, ]
+        data_dict['parse_leaf_node_attr_index'] = leaf_node_attr_index.astype(np.int64)                 # [E, A]
+        data_dict['parse_center_node_attr_index'] = center_node_attr_index.astype(np.int64)             # [1, A]
 
         return data_dict
 
@@ -614,14 +614,14 @@ def collate_fn_parse(inputs):
         parse_leaf_node_index_all.append(parse_leaf_node_index)
         parse_leaf_node_attr_index_all.append(parse_leaf_node_attr_index)
 
-    outputs_parse['parse_edge_embeddings'] = np.vstack(parse_edge_embeddings_all)
-    outputs_parse['parse_leaf_node_embeddings'] = np.vstack(parse_leaf_node_embeddings_all)
-    outputs_parse['parse_leaf_node_attr_embeddings'] = np.vstack(parse_leaf_node_attr_embeddings_all)
-    outputs_parse['parse_edges_index'] = np.hstack(parse_edges_index_all)
-    outputs_parse['parse_leaf_node_index'] = np.hstack(parse_leaf_node_index_all)
-    outputs_parse['parse_leaf_node_attr_index'] = np.vstack(parse_leaf_node_attr_index_all)
+    outputs_parse['parse_edge_embeddings'] = np.vstack(parse_edge_embeddings_all).astype(np.float32)
+    outputs_parse['parse_leaf_node_embeddings'] = np.vstack(parse_leaf_node_embeddings_all).astype(np.float32)
+    outputs_parse['parse_leaf_node_attr_embeddings'] = np.vstack(parse_leaf_node_attr_embeddings_all).astype(np.float32)
+    outputs_parse['parse_edges_index'] = np.hstack(parse_edges_index_all).astype(np.int64)
+    outputs_parse['parse_leaf_node_index'] = np.hstack(parse_leaf_node_index_all).astype(np.int64)
+    outputs_parse['parse_leaf_node_attr_index'] = np.vstack(parse_leaf_node_attr_index_all).astype(np.int64)
 
-    outputs_parse['parse_batch_index'] = np.array(idx_all)
+    outputs_parse['parse_batch_index'] = np.array(idx_all).astype(np.int64)
 
     # print("parse_edge_embeddings:", outputs_parse['parse_edge_embeddings'].shape)
     # print("parse_leaf_node_embeddings:", outputs_parse['parse_leaf_node_embeddings'].shape)
