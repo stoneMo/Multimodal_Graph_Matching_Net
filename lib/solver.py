@@ -251,7 +251,15 @@ class Solver():
                 if key in ['lang_feat', 'lang_len', 'object_cat', 'pt', 'point_min', 'point_max', 'mlm_label',
                            'ref_center_label', 'ref_size_residual_label', 'attr_cls_gt']:
                     data_dict[key] = data_dict[key].cuda()
-
+                if CONF.model_name == 'MGMN' and key in ['parse_edge_embeddings','parse_leaf_node_embeddings','parse_leaf_node_attr_embeddings',
+                            'parse_center_node_attr_embeddings','parse_batch_index']:
+                    # should be done in dataloader
+                    if not isinstance(data_dict[key],torch.Tensor):
+                        if 'embeddings' in key:
+                            data_dict[key] = torch.from_numpy(data_dict[key])
+                        elif 'index' in key:
+                            data_dict[key] = torch.from_numpy(data_dict[key])
+                    data_dict[key] = data_dict[key].cuda()
             # initialize the running loss
             self._running_log = {
                 # loss

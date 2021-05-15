@@ -8,8 +8,9 @@ from easydict import EasyDict
 
 def get_parser():
     parser = argparse.ArgumentParser(description='InstanceRefer')
+    parser.add_argument('--model_name', type=str, default='IR', choices=['IR','TGNN','MGMN'], help='model to deploy')
     parser.add_argument('--gpu', type=str, default='0', help='GPU idx')
-    parser.add_argument('--config', type=str, default='config/InstanceRefer.yaml', help='path to config file')
+    # parser.add_argument('--config', type=str, default='config/InstanceRefer.yaml', help='path to config file')
     parser.add_argument('--log_dir', type=str, default='test', help='path to log file')
     parser.add_argument('--debug', action='store_true')
 
@@ -17,6 +18,14 @@ def get_parser():
     parser.add_argument('--pretrain', type=str, default='', help='path to pretrain model')
 
     args_cfg = parser.parse_args()
+
+    if args_cfg.model_name == 'IR':
+        setattr(args_cfg, 'config', 'config/InstanceRefer.yaml')
+    elif args_cfg.model_name == 'TGNN':
+        setattr(args_cfg, 'config', 'config/tgnn.yaml')
+    elif args_cfg.model_name == 'MGMN':
+        setattr(args_cfg, 'config', 'config/mgmn.yaml')
+
     assert args_cfg.config is not None
     with open(args_cfg.config, 'r') as f:
         config = yaml.load(f)
@@ -73,3 +82,7 @@ CONF.SCANNETV2_LIST = os.path.join(CONF.PATH.SCANNET_META, "scannetv2.txt")
 CONF.TRAIN = EasyDict()
 CONF.TRAIN.MAX_DES_LEN = 126
 CONF.TRAIN.SEED = 42
+
+# parsing_data
+CONF.PARSING_DIR = "data/parsing_data/"  # TODO change this
+CONF.NUM_NODE_ATTR = 20

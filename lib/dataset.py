@@ -52,6 +52,10 @@ class ScannetReferenceDataset(Dataset):
         # load data
         self._load_data()
 
+        # load parsing data 
+        if self.split != 'test':
+            self._load_parsing_data()
+
         with open(GLOVE_PICKLE, "rb") as f:
             self.glove = pickle.load(f)
 
@@ -84,12 +88,79 @@ class ScannetReferenceDataset(Dataset):
 
             else:
                 break
+        
 
         # get language features
         lang_feat = embeddings
         lang_token = tokens
         lang_len = len([token for token in lang_token if not token.isspace()])
         lang_len = lang_len if lang_len <= CONF.TRAIN.MAX_DES_LEN else CONF.TRAIN.MAX_DES_LEN
+
+        # ------------------------------- parsing features ------------------------------
+        # get parsing features 
+        max_num_attr = CONF.NUM_NODE_ATTR
+        center_node_index = np.array([self.center_node_index_all[idx]])       # [1,]
+        center_node_attr_index = np.expand_dims(self.center_node_attr_index_all[idx][:max_num_attr], axis=0)   # [1, 300]
+        center_node_attr_index = np.where(center_node_attr_index == 300, max_num_attr, center_node_attr_index)
+        edges_index = np.array(self.edges_index_all[idx])                   # [E,]
+        leaf_node_index = np.array(self.leaf_node_index_all[idx])           # [E,]
+        leaf_node_attr_index = np.array(self.leaf_node_attr_index_all[idx])[:, :max_num_attr]  # [E, 300]
+        leaf_node_attr_index = np.where(leaf_node_attr_index == 300, max_num_attr, leaf_node_attr_index)
+        
+        # print("center_node_attr_index:", center_node_attr_index.shape)
+        # print("edges_index:", edges_index.shape)
+        # print("leaf_node_index:", leaf_node_index.shape)
+        # print("leaf_node_attr_index:", leaf_node_attr_index.shape)
+        num_edge = edges_index.shape[0]
+
+        center_node_attr_embeddings = np.zeros((1, max_num_attr, 300))
+        edge_embeddings = np.zeros((num_edge, 300))
+        leaf_node_embeddings = np.zeros((num_edge, 300))
+        leaf_node_attr_embeddings = np.zeros((num_edge, max_num_attr, 300))
+
+        for idx in range(max_num_attr):
+            center_attr_token_id = int(center_node_attr_index[:,idx])
+            if center_attr_token_id != max_num_attr:
+                center_attr_token = tokens[center_attr_token_id]
+                center_node_attr_embeddings[:,idx] = self._gen_embedding(center_attr_token)
+            else:
+                center_node_attr_embeddings[:,idx] = np.zeros(300)
+        
+        for token_idx in range(num_edge):
+
+            edge_token_id = edges_index[token_idx]
+            leaf_token_id = leaf_node_index[token_idx]
+
+            if edge_token_id < len(tokens):
+                edge_token = tokens[edge_token_id]
+            else:
+                edge_token = tokens[len(tokens)-1]
+                # print(edge_token_id, len(tokens))
+
+            if leaf_token_id < len(tokens): 
+                leaf_node_token = tokens[leaf_token_id]
+            else:
+                leaf_node_token = tokens[len(tokens)-1]
+                # print(leaf_token_id, len(tokens))
+            
+            edge_embeddings[token_idx] = self._gen_embedding(edge_token)
+            leaf_node_embeddings[token_idx] = self._gen_embedding(leaf_node_token)
+
+            leaf_attr_token_id_all = leaf_node_attr_index[token_idx]
+            for j in range(max_num_attr):
+                leaf_attr_token_id = int(leaf_attr_token_id_all[j])
+                if leaf_attr_token_id != max_num_attr:
+                    leaf_attr_token = tokens[leaf_attr_token_id]
+                    leaf_node_attr_embeddings[token_idx][j] = self._gen_embedding(leaf_attr_token)
+                else:
+                    leaf_node_attr_embeddings[token_idx][j] = np.zeros(300)
+
+        # print("center_node_attr_embeddings:", center_node_attr_embeddings.shape)
+        # print("edge_embeddings:", edge_embeddings.shape)
+        # print("leaf_node_embeddings:", leaf_node_embeddings.shape)
+        # print("leaf_node_attr_embeddings:", leaf_node_attr_embeddings.shape)
+
+        # ------------------------------- end parsing features ------------------------------
 
         # get pc
         mesh_vertices = np.load(os.path.join(CONF.PATH.SCANNET_DATA, scene_id) + "_aligned_vert.npy")  # axis-aligned
@@ -303,6 +374,17 @@ class ScannetReferenceDataset(Dataset):
         data_dict["unique_multiple"] = np.array(
             self.unique_multiple_lookup[scene_id][str(object_id)][str(ann_id)]).astype(np.int64)
 
+        # ------------------------------- PARSING embeddings ------------------------------
+        data_dict['parse_edge_embeddings'] = edge_embeddings.astype(np.float32)                         # [E, 300]
+        data_dict['parse_leaf_node_embeddings'] = leaf_node_embeddings.astype(np.float32)               # [E, 300]
+        data_dict['parse_leaf_node_attr_embeddings'] = leaf_node_attr_embeddings.astype(np.float32)     # [E, A, 300]
+        data_dict['parse_center_node_attr_embeddings'] = center_node_attr_embeddings.astype(np.float32) # [1, A, 300]
+ 
+        data_dict['parse_edges_index'] = edges_index.astype(np.int64)                                   # [E, ]
+        data_dict['parse_leaf_node_index'] = leaf_node_index.astype(np.int64)                           # [E, ]
+        data_dict['parse_leaf_node_attr_index'] = leaf_node_attr_index.astype(np.int64)                 # [E, A]
+        data_dict['parse_center_node_attr_index'] = center_node_attr_index.astype(np.int64)             # [1, A]
+
         return data_dict
 
     def _get_raw2label(self):
@@ -461,6 +543,9 @@ class ScannetReferenceDataset(Dataset):
 
     @staticmethod
     def collate_fn(inputs):
+        # ------------------------------- PARSING embeddings ------------------------------
+        output_parse = collate_fn_parse(inputs)
+        # ------------------------------- END PARSING embeddings ------------------------------
         outputs = sparse_collate_fn(inputs)
         pts_batch = []
         pred_obb_batch = []
@@ -471,5 +556,91 @@ class ScannetReferenceDataset(Dataset):
 
         outputs['pts_batch'] = pts_batch
         outputs['pred_obb_batch'] = pred_obb_batch
-
+        outputs.update(output_parse)
         return outputs
+
+    def _load_parsing_data(self):
+
+        print("loading parsing data...") 
+
+        data_path = CONF.PARSING_DIR
+        self.center_node_index_all = np.load(os.path.join(data_path, self.split+"_center_node_index.npy"), allow_pickle=True)
+        self.center_node_attr_index_all = np.load(os.path.join(data_path, self.split+"_center_node_attr_index.npy"), allow_pickle=True)
+        self.edges_index_all = np.load(os.path.join(data_path, self.split+"_edges_index.npy"), allow_pickle=True)
+        self.leaf_node_index_all = np.load(os.path.join(data_path, self.split+"_leaf_node_index.npy"), allow_pickle=True)
+        self.leaf_node_attr_index_all = np.load(os.path.join(data_path, self.split+"_leaf_node_attr_index.npy"), allow_pickle=True)
+
+    def _gen_embedding(self, token):
+
+        if token in self.glove:
+            embeddings = self.glove[token]
+        else:
+            embeddings = self.glove["unk"]
+        return embeddings
+
+def collate_fn_parse(inputs):
+
+    outputs_parse = dict()
+    
+    # print("type_inputs:", type(inputs))
+    # print("inputs:", len(inputs))
+    idx_all = []
+    parse_edge_embeddings_all = []
+    parse_leaf_node_embeddings_all = []
+    parse_leaf_node_attr_embeddings_all = []
+
+    parse_edges_index_all = []
+    parse_leaf_node_index_all = []
+    parse_leaf_node_attr_index_all = []
+
+    for idx, input in enumerate(inputs):
+        parse_edge_embeddings = input['parse_edge_embeddings']                      # [E, 300] 
+        # print("parse_edge_embeddings:", parse_edge_embeddings.shape)
+        num_edge = parse_edge_embeddings.shape[0]
+        idx_all.extend([idx] * num_edge)
+
+        parse_leaf_node_embeddings = input['parse_leaf_node_embeddings']            # [E, 300]
+        parse_leaf_node_attr_embeddings = input['parse_leaf_node_attr_embeddings']  # [E, A, 300] 
+        
+        parse_edges_index = input['parse_edges_index']                              # [E, ]
+        parse_leaf_node_index = input['parse_leaf_node_index']                      # [E, ] 
+        parse_leaf_node_attr_index = input['parse_leaf_node_attr_index']            # [E, A] 
+                                     
+        parse_edge_embeddings_all.append(parse_edge_embeddings)
+        parse_leaf_node_embeddings_all.append(parse_leaf_node_embeddings)
+        parse_leaf_node_attr_embeddings_all.append(parse_leaf_node_attr_embeddings)
+
+        parse_edges_index_all.append(parse_edges_index)
+        parse_leaf_node_index_all.append(parse_leaf_node_index)
+        parse_leaf_node_attr_index_all.append(parse_leaf_node_attr_index)
+
+    outputs_parse['parse_edge_embeddings'] = np.vstack(parse_edge_embeddings_all).astype(np.float32)
+    outputs_parse['parse_leaf_node_embeddings'] = np.vstack(parse_leaf_node_embeddings_all).astype(np.float32)
+    outputs_parse['parse_leaf_node_attr_embeddings'] = np.vstack(parse_leaf_node_attr_embeddings_all).astype(np.float32)
+    outputs_parse['parse_edges_index'] = np.hstack(parse_edges_index_all).astype(np.int64)
+    outputs_parse['parse_leaf_node_index'] = np.hstack(parse_leaf_node_index_all).astype(np.int64)
+    outputs_parse['parse_leaf_node_attr_index'] = np.vstack(parse_leaf_node_attr_index_all).astype(np.int64)
+
+    outputs_parse['parse_batch_index'] = np.array(idx_all).astype(np.int64)
+
+    # print("parse_edge_embeddings:", outputs_parse['parse_edge_embeddings'].shape)
+    # print("parse_leaf_node_embeddings:", outputs_parse['parse_leaf_node_embeddings'].shape)
+    # print("parse_leaf_node_attr_embeddings:", outputs_parse['parse_leaf_node_attr_embeddings'].shape)
+    
+    # print("parse_edges_index:", outputs_parse['parse_edges_index'].shape)
+    # print("parse_leaf_node_index:", outputs_parse['parse_leaf_node_index'].shape)
+    # print("parse_leaf_node_attr_index:", outputs_parse['parse_leaf_node_attr_index'].shape)
+
+    # print("parse_batch_index:", outputs_parse['parse_batch_index'])
+
+
+    for input in inputs:
+        input.pop('parse_edge_embeddings')
+        input.pop('parse_leaf_node_embeddings')
+        input.pop('parse_leaf_node_attr_embeddings')
+
+        input.pop('parse_edges_index')
+        input.pop('parse_leaf_node_index')
+        input.pop('parse_leaf_node_attr_index')
+
+    return outputs_parse
