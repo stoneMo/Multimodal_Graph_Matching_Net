@@ -2,6 +2,7 @@ import torch
 import math
 import torch.nn as nn
 import torchsparse.nn as spnn
+from torch.nn.utils.rnn import pack_padded_sequence, pad_packed_sequence
 
 from torchsparse import SparseTensor
 from torch_geometric.nn import MessagePassing, knn_graph, knn
@@ -11,6 +12,8 @@ class VisualEdgeConv(MessagePassing):
     def __init__(self, F_in, F_out, args, mode='full'):
         super(VisualEdgeConv,self).__init__(aggr='max')
         self.args = args
+        self.mode = mode
+        self.k = args.k
         self.rel_encoder = nn.Sequential(
             nn.Linear(3+3+3+1+self.args.num_classes*2, 64),
             nn.ReLU(),
@@ -43,7 +46,7 @@ class VisualEdgeConv(MessagePassing):
         # langfeat: E*length*num_feat
         edge_weights = torch.cat([x_i,x_j,x_i-x_j,torch.norm(x_i-x_j,p=2,dim=-1,keepdim=True),feat_i[:, -self.args.num_classes:],feat_j[:, -self.args.num_classes:]],-1)
         edge_weights = self.rel_encoder(edge_weights)
-        return self.vis_encoder(torch.cat([feat_i,edge_weights,feat_j]))
+        return self.vis_encoder(torch.cat([feat_i,edge_weights,feat_j],dim=-1))
 
 class LangConv(nn.Module):
     def __init__(self, args, embed_type='glove', aggr='max'):
@@ -77,17 +80,19 @@ class LangConv(nn.Module):
         elif aggr != 'max':
             raise ValueError("Aggregation either attention or max-pooling")
 
-    def _process_attr_embed(self, x, length=None):
+    def _process_attr_embed(self, x):
         b,l,e = x.shape
-        mask = (x.abs().sum(-1,keepdim=True)==0).float()
-        x = self.word_projection(x.reshape([b*l,e])).reshape([b,l,e])
+        mask = (x.abs().sum(-1,keepdim=True)>0).float()
+        length = mask.squeeze(-1).sum(1).long()
+        zero_length = (length>0).float()
+        length = torch.clamp(length, min=1)
+        x = self.word_projection(x.reshape([b*l,e])).reshape([b,l,-1])
         if self.embed_type == 'glove':
-            if length:
-                raise NotImplementedError("Not support currently")
-            else:
-                x = self.gru(x)*mask
+            x = pack_padded_sequence(x, length.cpu(), batch_first=True, enforce_sorted=False)
+            x, _ = self.gru(x)
+            x, _ = pad_packed_sequence(x, batch_first=True)
         if self.aggr == 'max':
-            x = x.max(1)[0]
+            x = x.max(1)[0]*(zero_length.unsqueeze(-1))
         elif self.aggr == 'attention':
             raise NotImplementedError("Not support currently")
         return x
@@ -109,8 +114,14 @@ class LangEdgeConv(MessagePassing):
             nn.ReLU(),
             nn.Linear(F_out, F_out)
         )
+        self.encoder2 = nn.Sequential(
+            nn.Linear(2*F_out, F_out),
+            nn.ReLU(),
+            nn.Linear(F_out, F_out)
+        )
+        
     def forward(self, x_i, x_j, edge_index):
-        return x_i+self.propagate(edge_index, x=(x_j,x_i))
+        return self.encoder2(torch.cat([x_i,self.propagate(edge_index, x=(x_j,x_i))],dim=1))
     def message(self, x_i, x_j):
         return self.encoder(x_j)
 
@@ -123,7 +134,7 @@ class GraphConvDist(nn.Module):
         x_i = center_node_attr
         x_j = leaf_node_all
         edge_index = torch.stack([torch.arange(len(node_idx)).to(node_idx.device),node_idx],0)
-        lang_gcnfeats = self.gcn(edge_index,x_i,x_j)
+        lang_gcnfeats = self.gcn(x_i,x_j,edge_index)
         return nn.functional.cosine_similarity(gcnfeats, lang_gcnfeats, dim=1)
 
 class GraphMatchDist(nn.Module):
