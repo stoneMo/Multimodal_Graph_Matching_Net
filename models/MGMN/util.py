@@ -61,7 +61,8 @@ def auction_lap(X, eps=None, compute_score=True):
         
         curr_ass[(curr_ass.view(-1, 1) == have_bidder.view(1, -1)).sum(dim=1)] = -1
         curr_ass[high_bidders] = have_bidder.squeeze()
-    
+        if counter > 1000:
+            curr_ass = torch.clamp(curr_ass, min=0)
     score = None
     if compute_score:
         score = int(X.gather(dim=1, index=curr_ass.view(-1, 1)).sum())
