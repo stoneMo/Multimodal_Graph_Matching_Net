@@ -138,9 +138,50 @@ class GraphConvDist(nn.Module):
         return nn.functional.cosine_similarity(gcnfeats, lang_gcnfeats, dim=1)
 
 class GraphMatchDist(nn.Module):
-    def __init__(self):
+    def __init__(self, h_dim, args):
         super().__init__()
-        pass
+        self.args = args
+        self.k = args.k
+        self.h_dim = h_dim
+        self.label_map = nn.Linear(args.num_classes, h_dim)
+        self.rel_map = nn.Sequential(
+            nn.Linear(3+3+3+1,64),
+            nn.ReLU(),
+            nn.Linear(64,h_dim)
+        )
 
-    def forward(self):
-        pass
+    def _compute_affinity_mat(self, x, y):
+        assert x.shape[1] == y.shape[1]
+        x = x.unsqueeze(1).expand(x.shape[0],y.shape[0],x.shape[1])
+        y = y.unsqueeze(0).expand_as(x)
+        mat = nn.functional.cosine_similarity(x, y, dim=2)
+        return mat
+
+    def forward(self, support_xyz, batch_index, filtered_index, gcnfeat, leaf_node_all):
+        query_xyz = torch.index_select(support_xyz, 0, filtered_index)
+        query_batch_index = torch.index_select(batch_index, 0, filtered_index)
+        row, col = knn(support_xyz, query_xyz, self.k, batch_index, query_batch_index)
+
+        total_scores = []
+        for i in range(len(query_xyz)):
+            tmp_idx = torch.where(row==i)
+            tmp_idx = col[tmp_idx]
+            xyz_j = support_xyz[tmp_idx]
+            xyz_i = query_xyz[i:i+1].expand_as(xyz_j)
+            feat_j = gcnfeat[tmp_idx]
+            
+            tmp_leaf_node_all = leaf_node_all[i]
+            assert tmp_leaf_node_all.shape[0] > 0
+            edge_weights = torch.cat([xyz_i,xyz_j,xyz_i-xyz_j,torch.norm(xyz_i-xyz_j,p=2,dim=-1,keepdim=True)],-1)
+            edge_weights = self.rel_map(edge_weights)
+            cls_weights = self.label_map(feat_j[:,-self.args.num_classes:])
+            assert tmp_leaf_node_all.shape[1] == 3*self.h_dim
+            mat1 = self._compute_affinity_mat(tmp_leaf_node_all[:,:self.h_dim],edge_weights)
+            mat2 = self._compute_affinity_mat(tmp_leaf_node_all[:,self.h_dim:self.h_dim*2],cls_weights)
+            mat3 = self._compute_affinity_mat(tmp_leaf_node_all[:,2*self.h_dim:],feat_j[:,:self.h_dim])
+            mat = (mat1+mat2)/4+mat3/2
+            _, gm_idx, _ = auction_lap(mat)
+            score = mat[torch.arange(gm_idx.shape[0]),gm_idx].mean()
+            total_scores.append(score)
+            
+        return torch.stack(total_scores)

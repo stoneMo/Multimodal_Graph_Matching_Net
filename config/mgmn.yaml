@@ -51,7 +51,7 @@ MODEL:
   graphmatch_module: graphmatch_module
   attr_aggr: max
   attr_embed_type: glove
-  graph_match_op: gcd
+  graph_match_op: gmd
 
   # pretrain
   use_checkpoint:

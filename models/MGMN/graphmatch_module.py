@@ -36,7 +36,7 @@ class GraphMatchModule(nn.Module):
             self.gcn3 = VisualEdgeConv(h_dim + 3 + args.num_classes, h_dim, args=self.args, mode='part')
             self.gm = GraphConvDist(h_dim)
         elif args.graph_match_op == 'gmd':
-            raise NotImplementedError()
+            self.gm = GraphMatchDist(h_dim, args)
         else:
             raise ValueError("Graph Matching operation should be either gcd or gmd")
 
@@ -153,8 +153,8 @@ class GraphMatchModule(nn.Module):
             gcnfeats = F.relu(gcnfeats)
             gcnfeats = self.gcn3(support_xyz, batch_index, filtered_index, torch.cat([gcnfeats,feats],dim=1))
             scores = self.gm(center_node_attr, leaf_node_all, node_idx, gcnfeats)
-        else:
-            raise NotImplementedError()
+        elif self.args.graph_match_op == 'gmd':
+            scores = self.gm(support_xyz, batch_index, filtered_index, torch.cat([gcnfeats,feats[:,3:]],dim=1),leaf_node_all)
         # feats = self.vis_emb_fc(feats)
         # feats = nn.functional.normalize(feats, p=2, dim=1)
         # scores = nn.functional.cosine_similarity(feats, lang_feats_flatten, dim=1)
