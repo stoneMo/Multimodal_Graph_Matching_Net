@@ -204,11 +204,11 @@ def sparse_collate_fn(batch):
                 ans_dict[key] = sparse_collate_tensors(
                     [sample[key] for sample in batch])
             elif isinstance(batch[0][key], np.ndarray):
-                ans_dict[key] = torch.cat(
+                ans_dict[key] = torch.stack(
                     [torch.from_numpy(sample[key]) for sample in batch],
                     dim=0)
             elif isinstance(batch[0][key], torch.Tensor):
-                ans_dict[key] = torch.cat([sample[key] for sample in batch], dim=0)
+                ans_dict[key] = torch.stack([sample[key] for sample in batch], dim=0)
             elif isinstance(batch[0][key], dict):
                 ans_dict[key] = sparse_collate_fn(
                     [sample[key] for sample in batch])
