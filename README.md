@@ -1,34 +1,16 @@
-# Multimodal Graph Matching Net
+# 16824 Final Project: Multimodal Graph Matching Net
 
-This repo heavily relies on [InstanceRefer](https://github.com/CurryYuan/InstanceRefer). Here is their README.
+## Overview
 
-We re-organized the code and also re-implemented/integrate [TGNN](https://github.com/hanhung/TGNN) in our repo. You could deploy different model by specifying `model_name`.
+Our implementation heavily relies on [InstanceRefer](https://github.com/CurryYuan/InstanceRefer). We follow their data preprocessing, training/testing setups. The environment setup and main procedure of data generation in this README is also adapt from that repository.
 
-## InstanceRefer
-### InstanceRefer: Cooperative Holistic Understanding for Visual Grounding on Point Clouds through Instance Multi-level Contextual Referring
-
-This repository is for the 1st method on ScanRefer benchmark [[arxiv paper]](https://arxiv.org/pdf/2103.01128.pdf).
-
-Zhihao Yuan, [Xu Yan](https://github.com/yanx27), Yinghong Liao, Ruimao Zhang, [Zhen Li*](https://mypage.cuhk.edu.cn/academics/lizhen/), Shuguang Cui
-
-![](figures/pipeline.png)
-
-If you find our work useful in your research, please consider citing:
-```
-@InProceedings{yuan2021instancerefer,
-  title={InstanceRefer: Cooperative Holistic Understanding for Visual Grounding on Point Clouds through Instance Multi-level Contextual Referring},
-  author={Zhihao Yuan, Xu Yan, Yinghong Liao, Ruimao Zhang, Zhen Li, Shuguang Cui},
-  journal={arXiv preprint},
-  year={2021}
-}
-```
-## News
-* 2021-03-31 We release InstanceRefer v1 :rocket:!
-* 2021-03-18 We achieve 1st place in [ScanRefer](http://kaldir.vc.in.tum.de/scanrefer_benchmark/) leaderboard :fire:. 
-![](figures/benchmark.png)
+Our efforts include:
+  - Implement our proposed MGMN model
+  - Preprocess the language data into a tree structure using semantic parser.
+  - Re-implemented/integrate [TGNN](https://github.com/hanhung/TGNN) in our repo under same setups. 
+  - Re-organize the file structure. You can now deploy different model by specifying `model_name`.
 
 ## Getting Started
-
 
 ## Setup
 The code is tested on Ubuntu 16.04 LTS & 18.04 LTS with PyTorch 1.3.0 CUDA 10.1 installed. 
@@ -73,21 +55,13 @@ InstanceRefer
 │   │  ├──├──  ... ...
 
 ```
+6. Please contact Shentong Mo (shentonm@andrew.cmu.edu) for our preprocessed parsing tree data. The npy file should be placed under `data/parsing_data`
 
 ### Training
-Train the InstanceRefer model. You can change hyper-parameters in `config/InstanceRefer.yaml`:
+Train the InstanceRefer/TGNN/MGMN model. You can change hyper-parameters in corresponding yaml file in `config/`:
 ```shell
-python scripts/train.py --log_dir instancerefer
+python scripts/train.py --model_name [IR/TGNN/MGMN] --log_dir [your logger dir] --gpu [your gpu id]
 ```
-
-
-## TODO
-
-- [ ] Updating to the best version.
-- [ ] Release codes for prediction on benchmark.
-- [ ] Release pre-trained model.
-- [ ] Merge PointGroup in an end-to-end manner.
-
 
 ## Acknowledgement
 This project is not possible without multiple great opensourced codebases. 
@@ -95,5 +69,7 @@ This project is not possible without multiple great opensourced codebases.
 * [PointGroup](https://github.com/Jia-Research-Lab/PointGroup)
 * [torchsaprse](https://github.com/mit-han-lab/torchsparse)
 * [pytorch_geometric](https://github.com/rusty1s/pytorch_geometric)
-## License
-This repository is released under MIT License (see LICENSE file for details).
+* [InstanceRefer](https://github.com/CurryYuan/InstanceRefer)
+* [TGNN](https://github.com/hanhung/TGNN)
+
+For any other problem, please kindly contact Jianchun Chen (jianchuc@andrew.cmu.edu) and Shentong Mo (shentonm@andrew.cmu.edu)
